@@ -31,7 +31,7 @@ class ExampleG2 {
 			}
 		}
 
-		format.vox.Tools.fixZ(vox);
+		format.vox.Tools.fixZ_2d(vox);
 
 		voxels.sort(function( a, b ) return b.y - a.y);
 

@@ -5,7 +5,7 @@ import format.vox.Data;
 class Tools {
 	public static var defaultPalette(default, null) = PaletteTools.defaultPalette;
 
-	public static function fixZ( vox : Vox ) {
+	public static function fixZ_2d( vox : Vox ) {
 		var dz = 0;
 
 		for (c in vox) {
@@ -17,11 +17,31 @@ class Tools {
 			}
 		}
 	}
+
+	public static function fixZ_3d( vox : Vox ) {
+		var dz = 0;
+		var dy = 0;
+
+		for (c in vox) {
+			switch (c) {
+				case Chunk.Palette(_):
+				case Chunk.Size(x, y, z):
+					dz = z;
+					dy = y;
+				case Chunk.Voxel(voxels):
+					for (v in voxels) {
+						var y = v.y;
+						var z = v.z;
+						v.y = z;
+						v.z = dy - 1 - y;
+					}
+			}
+		}
+	}	
 }
 
 private class PaletteTools {
 	public static var defaultPalette = [
-		//0x00000000,
 		0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff,
 		0xffffccff, 0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff,
 		0xffff99ff, 0xffcc99ff, 0xff9999ff, 0xff6699ff, 0xff3399ff, 0xff0099ff,
@@ -67,24 +87,10 @@ private class PaletteTools {
 		0xff444444, 0xff222222, 0xff111111		
 	].map(transform);
 	
-	// public static inline function transform( color : Int ) : Color return {
-	// 	a : color & 0xff000000,
-	// 	r : color & 0x000000ff,
-	// 	g : color & 0x0000ff00,
-	// 	b : color & 0x00ff0000,
-	// }
-
-	public static function transform( color : Int ) : Color {
-		var r = color & 0xff;
-		var g = (color >> 8) & 0xff;
-		var b = (color >> 16) & 0xff;
-		var a = (color >> 24) & 0xff;
-
-		return {
-			r : r,
-			g : g,
-			b : b,
-			a : a,
-		}
+	public static inline function transform( color : Int ) : Color return {
+		r : color & 0xff,
+		g : (color >> 8) & 0xff,
+		b : (color >> 16) & 0xff,
+		a : (color >> 24) & 0xff,
 	}
 }
