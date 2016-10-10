@@ -16,8 +16,8 @@ class ExampleG2 {
 
 	function setupModel() {
 		// var vox = new format.vox.Reader(new BlobInput(kha.Assets.blobs._3x3x3_vox)).read();
-		var vox = new format.vox.Reader(new BlobInput(kha.Assets.blobs.doom_vox)).read();
-		// var vox = new format.vox.Reader(new BlobInput(kha.Assets.blobs.chr_sword_vox)).read();
+		// var vox = new format.vox.Reader(new BlobInput(kha.Assets.blobs.doom_vox)).read();
+		var vox = new format.vox.Reader(new BlobInput(kha.Assets.blobs.chr_sword_vox)).read();
 		// var vox = new format.vox.Reader(new BlobInput(kha.Assets.blobs.chr_knight_vox)).read();
 
 		for (chunk in vox) {
@@ -32,6 +32,8 @@ class ExampleG2 {
 		}
 
 		format.vox.Tools.fixZ(vox);
+
+		voxels.sort(function( a, b ) return b.y - a.y);
 
 		if (palette == null) {
 			palette = format.vox.Tools.defaultPalette;
