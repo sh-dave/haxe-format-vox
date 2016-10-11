@@ -3,8 +3,8 @@ package format.vox;
 typedef Vox = Array<Chunk>;
 
 enum Chunk {
-	Size( x : Int, y : Int, z : Int );
-	Voxel( v : Array<Voxel> );
+	Dimensions( x : Int, y : Int, z : Int );
+	Geometry( v : Array<Voxel> );
 	Palette( c : Array<Color> );
 }
 

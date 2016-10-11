@@ -34,8 +34,8 @@ class Reader {
 
 		switch (tag) {
 			case MainTag:
-			case SizeTag: vox.push(Chunk.Size(i.readInt32(), i.readInt32(), i.readInt32()));
-			case VoxelTag: vox.push(Chunk.Voxel([for (c in 0...i.readInt32()) readVoxel(i)]));
+			case SizeTag: vox.push(Chunk.Dimensions(i.readInt32(), i.readInt32(), i.readInt32()));
+			case VoxelTag: vox.push(Chunk.Geometry([for (c in 0...i.readInt32()) readVoxel(i)]));
 			case PaletteTag: vox.push(Chunk.Palette([for (c in 0...256) readColor(i)]));
 			default:
 				trace('skipping invalid tag "${tag}"'); i.read(contentSize);

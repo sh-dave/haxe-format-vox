@@ -10,10 +10,10 @@ class Tools {
 
 		for (c in vox) {
 			switch (c) {
-				case Chunk.Palette(_):
-				case Chunk.Size(x, y, z): dz = z;
-				case Chunk.Voxel(voxels):
+				case Chunk.Dimensions(x, y, z): dz = z;
+				case Chunk.Geometry(voxels):
 					for (v in voxels) v.z = dz - 1 - v.z;
+				case Chunk.Palette(_):
 			}
 		}
 	}
@@ -24,17 +24,17 @@ class Tools {
 
 		for (c in vox) {
 			switch (c) {
-				case Chunk.Palette(_):
-				case Chunk.Size(x, y, z):
+				case Chunk.Dimensions(x, y, z):
 					dz = z;
 					dy = y;
-				case Chunk.Voxel(voxels):
+				case Chunk.Geometry(voxels):
 					for (v in voxels) {
 						var y = v.y;
 						var z = v.z;
 						v.y = z;
 						v.z = dy - 1 - y;
 					}
+				case Chunk.Palette(_):
 			}
 		}
 	}	

@@ -24,12 +24,12 @@ class VoxLoader {
 
 		for (chunk in vox) {
 			switch (chunk) {
-				case Chunk.Size(x, y, z):
+				case Chunk.Dimensions(x, y, z):
 					dx = x;
 					dy = z;
 					dz = y;
+				case Chunk.Geometry(v): voxels = v;
 				case Chunk.Palette(p): palette = p;
-				case Chunk.Voxel(v): voxels = v;
 			}
 		}
 
