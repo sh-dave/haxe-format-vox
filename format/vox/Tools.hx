@@ -11,8 +11,7 @@ class Tools {
 		for (c in vox) {
 			switch (c) {
 				case Chunk.Dimensions(x, y, z): dz = z;
-				case Chunk.Geometry(voxels):
-					for (v in voxels) v.z = dz - 1 - v.z;
+				case Chunk.Geometry(voxels): for (v in voxels) v.z = dz - 1 - v.z;
 				case Chunk.Palette(_):
 			}
 		}
