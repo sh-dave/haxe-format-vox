@@ -5,24 +5,28 @@ import format.vox.Data;
 class Tools {
 	public static var defaultPalette(default, null) = PaletteTools.defaultPalette;
 
-	public static function fixZ_2d( vox : Vox ) {
+	public static function fixZ_2d( vox: Vox ) {
 		var dz = 0;
 
-		for (c in vox) {
-			switch (c) {
-				case Chunk.Dimensions(x, y, z): dz = z;
-				case Chunk.Geometry(voxels): for (v in voxels) v.z = dz - 1 - v.z;
+		for (chunk in vox) {
+			switch chunk {
+				case Chunk.Dimensions(x, y, z):
+					dz = z;
+				case Chunk.Geometry(voxels):
+					for (v in voxels) {
+						v.z = dz - 1 - v.z;
+					}
 				case Chunk.Palette(_):
 			}
 		}
 	}
 
-	public static function fixZ_3d( vox : Vox ) {
+	public static function fixZ_3d( vox: Vox ) {
 		var dz = 0;
 		var dy = 0;
 
-		for (c in vox) {
-			switch (c) {
+		for (chunk in vox) {
+			switch chunk {
 				case Chunk.Dimensions(x, y, z):
 					dz = z;
 					dy = y;
@@ -36,11 +40,11 @@ class Tools {
 				case Chunk.Palette(_):
 			}
 		}
-	}	
+	}
 }
 
 private class PaletteTools {
-	public static var defaultPalette = [
+	public static var defaultPalette(default, null) = [
 		0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff,
 		0xffffccff, 0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff,
 		0xffff99ff, 0xffcc99ff, 0xff9999ff, 0xff6699ff, 0xff3399ff, 0xff0099ff,
@@ -83,10 +87,10 @@ private class PaletteTools {
 		0xff001100, 0xffee0000, 0xffdd0000, 0xffbb0000, 0xffaa0000, 0xff880000,
 		0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee,
 		0xffdddddd, 0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555,
-		0xff444444, 0xff222222, 0xff111111		
-	].map(transform);
-	
-	public static inline function transform( color : Int ) : Color return {
+		0xff444444, 0xff222222, 0xff111111
+	].map(transformColor);
+
+	static function transformColor( color: Int ) : Color return {
 		r : color & 0xff,
 		g : (color >> 8) & 0xff,
 		b : (color >> 16) & 0xff,
