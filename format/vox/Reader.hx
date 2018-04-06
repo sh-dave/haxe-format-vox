@@ -9,15 +9,22 @@ class Reader {
 	var input: Input;
 
 	public function new( bytes: Bytes )
-		this.input = new BytesInput(bytes);
+		this.input = bytes == null ? null : new BytesInput(bytes);
 
-	public function read() : Vox {
-		if (input.readString(4) != VoxTag) {
-			throw '"VOX " expected';
+	public function read() : Null<Vox> {
+		if (input == null) {
+			trace('no valid input');
+			return null;
+		}
+
+		if (input.readString(4) != VoxMagic) {
+			trace('"VOX " expected');
+			return null;
 		}
 
 		if (i32(input) != 150) {
-			throw 'unsupported version';
+			trace('unsupported version');
+			return null;
 		}
 
 		var vox = new Array<Chunk>();
@@ -26,23 +33,23 @@ class Reader {
 	}
 
 	static function readChunk( input: Input, vox: Vox ) : Int {
-		var tag = input.readString(4);
-		#if debug trace('tag = "${tag}"'); #end
+		var chunkId = input.readString(4);
+		#if debug trace('chunk id = "${chunkId}"'); #end
 		var contentSize = i32(input);
 		#if debug trace('content size = "${contentSize}"'); #end
 		var childBytes  = i32(input);
 		#if debug trace('child bytes = "${childBytes}"'); #end
 
-		switch tag {
-			case MainTag:
-			case SizeTag:
+		switch chunkId {
+			case MainChunkId:
+			case SizeChunkId:
 				vox.push(Chunk.Dimensions(i32(input), i32(input), i32(input)));
-			case VoxelTag:
+			case GeometryChunkId:
 				vox.push(Chunk.Geometry([for (c in 0...i32(input)) readVoxel(input)]));
-			case PaletteTag:
+			case PaletteChunkId:
 				vox.push(Chunk.Palette([for (c in 0...256) readColor(input)]));
 			default:
-				trace('skipping unsupported tag "${tag}"');
+				trace('skipping unsupported chunk "${chunkId}"');
 				input.read(contentSize);
 		}
 
@@ -67,9 +74,10 @@ class Reader {
 	static inline function byte( input: Input ) : Int
 		return input.readByte();
 
-	static inline var VoxTag = 'VOX ';
-	static inline var MainTag = 'MAIN';
-	static inline var SizeTag = 'SIZE';
-	static inline var VoxelTag = 'XYZI';
-	static inline var PaletteTag = 'RGBA';
+	static inline var VoxMagic = 'VOX ';
+
+	static inline var MainChunkId = 'MAIN';
+	static inline var SizeChunkId = 'SIZE';
+	static inline var GeometryChunkId = 'XYZI';
+	static inline var PaletteChunkId = 'RGBA';
 }
