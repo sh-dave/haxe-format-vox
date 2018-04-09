@@ -72,6 +72,9 @@ class Reader {
 				}
 
 				vox.palette = palette.map(Tools.transformColor);
+			case MaterialChunkId:
+				var m = readMaterial(input);
+				vox.materials[m.id] = m.props;
 			default:
 				trace('skipping unsupported chunk "${chunkId}"');
 				input.read(contentSize);
@@ -92,11 +95,23 @@ class Reader {
 	static inline function readVoxel( input: Input ) : Voxel
 		return { x: byte(input), y: byte(input), z: byte(input), colorIndex: byte(input) }
 
+	static inline function readMaterial( input: Input ) : { id: Int, props: Dict }
+		return {
+			id: i32(input),
+			props: readDict(input),
+		}
+
+	static inline function readDict( input: Input ) : Dict
+		return [for (i in 0...i32(input)) string(input) => string(input)];
+
 	static inline function i32( input: Input ) : Int
 		return input.readInt32();
 
 	static inline function byte( input: Input ) : Int
 		return input.readByte();
+
+	static inline function string( input: Input ) : String
+		return input.read(i32(input)).toString();
 
 	static inline var VoxMagic = 'VOX ';
 
@@ -104,6 +119,7 @@ class Reader {
 	static inline var SizeChunkId = 'SIZE';
 	static inline var GeometryChunkId = 'XYZI';
 	static inline var PaletteChunkId = 'RGBA';
+	static inline var MaterialChunkId = 'MATL';
 
 	// default palette from https://github.com/ephtracy/voxel-model/blob/master/MagicaVoxel-file-format-vox.txt
 	public static var DefaultPalette(get, null): Array<Int>;
