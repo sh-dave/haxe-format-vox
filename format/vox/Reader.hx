@@ -1,6 +1,6 @@
 package format.vox;
 
-import format.vox.Data;
+import format.vox.types.*;
 import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.Input;
@@ -27,7 +27,7 @@ class Reader {
 			return null;
 		}
 
-		var vox = new Array<Chunk>();
+		var vox = new Vox();
 		readChunk(input, vox);
 		return vox;
 	}
@@ -43,9 +43,21 @@ class Reader {
 		switch chunkId {
 			case MainChunkId:
 			case SizeChunkId:
-				vox.push(Chunk.Dimensions(i32(input), i32(input), i32(input)));
+				if (vox.size != null) {
+					trace('vox.size is already assigned');
+				}
+
+				vox.size = {
+					x :i32(input),
+					y: i32(input),
+					z: i32(input)
+				}
 			case GeometryChunkId:
-				vox.push(Chunk.Geometry([for (c in 0...i32(input)) readVoxel(input)]));
+				if (vox.voxels != null) {
+					trace('vox.voxels is already assigned');
+				}
+
+				vox.voxels = [for (c in 0...i32(input)) readVoxel(input)];
 			case PaletteChunkId:
 				var palette = DefaultPalette;
 
@@ -55,7 +67,11 @@ class Reader {
 
 				input.readInt32();
 
-				vox.push(Chunk.Palette(palette.map(Tools.transformColor)));
+				if (vox.palette != null) {
+					trace('vox.palette is already assigned');
+				}
+
+				vox.palette = palette.map(Tools.transformColor);
 			default:
 				trace('skipping unsupported chunk "${chunkId}"');
 				input.read(contentSize);

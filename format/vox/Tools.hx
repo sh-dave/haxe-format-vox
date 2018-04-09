@@ -1,26 +1,16 @@
 package format.vox;
 
-import format.vox.Data;
+import format.vox.types.*;
 
 class Tools {
-	public static function fixZ_3d( vox: Vox ) {
-		var dz = 0;
-		var dy = 0;
+	public static function transformCoordinateSystem( vox: Vox ) {
+		var dy = vox.size.y;
 
-		for (chunk in vox) {
-			switch chunk {
-				case Chunk.Dimensions(x, y, z):
-					dz = z;
-					dy = y;
-				case Chunk.Geometry(voxels):
-					for (v in voxels) {
-						var y = v.y;
-						var z = v.z;
-						v.y = z;
-						v.z = dy - 1 - y;
-					}
-				case Chunk.Palette(_):
-			}
+		for (v in vox.voxels) {
+			var y = v.y;
+			var z = v.z;
+			v.y = z;
+			v.z = dy - 1 - y;
 		}
 	}
 
