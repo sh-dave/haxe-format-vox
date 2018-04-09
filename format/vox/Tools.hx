@@ -4,13 +4,15 @@ import format.vox.types.*;
 
 class Tools {
 	public static function transformCoordinateSystem( vox: Vox ) {
-		var dy = vox.size.y;
+		for (i in 0...vox.models.length) {
+			var dy = vox.sizes[i].y;
 
-		for (v in vox.voxels) {
-			var y = v.y;
-			var z = v.z;
-			v.y = z;
-			v.z = dy - 1 - y;
+			for (v in vox.models[i]) {
+				var y = v.y;
+				var z = v.z;
+				v.y = z;
+				v.z = dy - 1 - y;
+			}
 		}
 	}
 

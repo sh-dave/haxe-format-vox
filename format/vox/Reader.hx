@@ -28,11 +28,12 @@ class Reader {
 		}
 
 		var vox = new Vox();
-		readChunk(input, vox);
+		var state = { modelIndex: 0, sizeIndex: 0 }
+		readChunk(input, vox, state);
 		return vox;
 	}
 
-	static function readChunk( input: Input, vox: Vox ) : Int {
+	static function readChunk( input: Input, vox: Vox, state: State ) : Int {
 		var chunkId = input.readString(4);
 		#if debug trace('chunk id = "${chunkId}"'); #end
 		var contentSize = i32(input);
@@ -42,22 +43,16 @@ class Reader {
 
 		switch chunkId {
 			case MainChunkId:
+			case PackChunkId:
+				var numModels = i32(input);
 			case SizeChunkId:
-				if (vox.size != null) {
-					trace('vox.size is already assigned');
-				}
-
-				vox.size = {
+				vox.sizes[state.sizeIndex++] = {
 					x :i32(input),
 					y: i32(input),
 					z: i32(input)
 				}
 			case GeometryChunkId:
-				if (vox.voxels != null) {
-					trace('vox.voxels is already assigned');
-				}
-
-				vox.voxels = [for (c in 0...i32(input)) readVoxel(input)];
+				vox.models[state.modelIndex++] = [for (c in 0...i32(input)) readVoxel(input)];
 			case PaletteChunkId:
 				var palette = DefaultPalette;
 
@@ -75,6 +70,21 @@ class Reader {
 			case MaterialChunkId:
 				var m = readMaterial(input);
 				vox.materials[m.id] = m.props;
+			case TransformationNodeChunkId:
+				trace('skipping unsupported chunk "${chunkId}"');
+				input.read(contentSize);
+			case ShapeNodeChunkId:
+				trace('skipping unsupported chunk "${chunkId}"');
+				input.read(contentSize);
+			case GroupNodeChunkId:
+				trace('skipping unsupported chunk "${chunkId}"');
+				input.read(contentSize);
+			case ReferenceObjectChunkId:
+				trace('skipping unsupported chunk "${chunkId}"');
+				input.read(contentSize);
+			case LayerChunkId:
+				trace('skipping unsupported chunk "${chunkId}"');
+				input.read(contentSize);
 			default:
 				trace('skipping unsupported chunk "${chunkId}"');
 				input.read(contentSize);
@@ -83,14 +93,11 @@ class Reader {
 		var chunkSize = 4 + 4 + 4 + contentSize + childBytes;
 
 		while (childBytes > 0) {
-			childBytes -= readChunk(input, vox);
+			childBytes -= readChunk(input, vox, state);
 		}
 
 		return chunkSize;
 	}
-
-	// static inline function readColor( input: Input ) : Color
-	// 	return { r: byte(input), g: byte(input), b: byte(input), a: byte(input) }
 
 	static inline function readVoxel( input: Input ) : Voxel
 		return { x: byte(input), y: byte(input), z: byte(input), colorIndex: byte(input) }
@@ -118,8 +125,14 @@ class Reader {
 	static inline var MainChunkId = 'MAIN';
 	static inline var SizeChunkId = 'SIZE';
 	static inline var GeometryChunkId = 'XYZI';
+	static inline var PackChunkId = 'PACK';
 	static inline var PaletteChunkId = 'RGBA';
 	static inline var MaterialChunkId = 'MATL';
+	static inline var TransformationNodeChunkId = 'nTRN';
+	static inline var ShapeNodeChunkId = 'nSHP';
+	static inline var GroupNodeChunkId = 'nGRP';
+	static inline var ReferenceObjectChunkId = 'rOBJ'; // TODO (DK) not defined in the docs
+	static inline var LayerChunkId = 'LAYR'; // TODO (DK) not defined in the docs
 
 	// default palette from https://github.com/ephtracy/voxel-model/blob/master/MagicaVoxel-file-format-vox.txt
 	public static var DefaultPalette(get, null): Array<Int>;
@@ -142,4 +155,9 @@ class Reader {
 		0xff000022, 0xff000011, 0xff00ee00, 0xff00dd00, 0xff00bb00, 0xff00aa00, 0xff008800, 0xff007700, 0xff005500, 0xff004400, 0xff002200, 0xff001100, 0xffee0000, 0xffdd0000, 0xffbb0000, 0xffaa0000,
 		0xff880000, 0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee, 0xffdddddd, 0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555, 0xff444444, 0xff222222, 0xff111111,
 	];
+}
+
+private typedef State = {
+	modelIndex: Int,
+	sizeIndex: Int,
 }
