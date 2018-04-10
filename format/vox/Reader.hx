@@ -80,21 +80,21 @@ class Reader {
 				var layerId = i32(input);
 				var numFrames = i32(input);
 				var frames = [for (i in 0...numFrames) readDict(input)];
-				// trace('nTRN $nodeId $attributes $childNodeId $reserved $layerId $numFrames $frames');
+				trace('nTRN $nodeId $attributes $childNodeId $reserved $layerId $numFrames $frames');
 				nodeData[nodeId] = TransformNodeData(attributes, childNodeId, reserved, layerId, frames);
 			case ShapeNodeChunkId:
 				var nodeId = i32(input);
 				var attributes = readDict(input);
 				var numModels = i32(input);
 				var models: Array<Model> = [for (i in 0...numModels) { modelId: i32(input), attributes: readDict(input) }];
-				// trace('nSHP $nodeId $attributes $numModels $models');
+				trace('nSHP $nodeId $attributes $numModels $models');
 				nodeData[nodeId] = ShapeNodeData(attributes, models);
 			case GroupNodeChunkId:
 				var nodeId = i32(input);
 				var attributes = readDict(input);
 				var numChildren = i32(input);
 				var children = [for (i in 0...numChildren) i32(input)];
-				// trace('nGRP $nodeId $attributes $numChildren $children');
+				trace('nGRP $nodeId $attributes $numChildren $children');
 				nodeData[nodeId] = GroupNodeData(attributes, children);
 			case ReferenceObjectChunkId:
 				trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)');
@@ -125,7 +125,8 @@ class Reader {
 			case GroupNodeData(att, children):
 				Group(att, [for (childId in children) buildNodeGraph(vox, nodeData, childId)]);
 			case ShapeNodeData(att, models):
-				Shape(att, [for (m in models) { attributes: m.attributes, model: vox.models[m.modelId] }]);
+				// Shape(att, [for (m in models) { attributes: m.attributes, model: vox.models[m.modelId] }]);
+				Shape(att, models);
 		}
 	}
 
