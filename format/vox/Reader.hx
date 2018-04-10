@@ -71,14 +71,32 @@ class Reader {
 				var m = readMaterial(input);
 				vox.materials[m.id] = m.props;
 			case TransformationNodeChunkId:
-				trace('skipping unsupported chunk "${chunkId}"');
-				input.read(contentSize);
+				var nodeId = i32(input); // 0 is root?
+				var attributes = readDict(input);
+				var childNodeId = i32(input);
+				var reserved = i32(input);
+				var layerId = i32(input);
+				var numFrames = i32(input);
+				var frames = [for (i in 0...numFrames) readDict(input)];
+				trace('$frames');
+				// trace('skipping unsupported chunk "${chunkId}"');
+				// input.read(contentSize);
 			case ShapeNodeChunkId:
-				trace('skipping unsupported chunk "${chunkId}"');
-				input.read(contentSize);
+				var nodeId = i32(input);
+				var attributes = readDict(input);
+				var numModels = i32(input);
+				var models = [for (i in 0...numModels) { id: i32(input), attributes: readDict(input) }];
+				trace('$models');
+				// trace('skipping unsupported chunk "${chunkId}"');
+				// input.read(contentSize);
 			case GroupNodeChunkId:
-				trace('skipping unsupported chunk "${chunkId}"');
-				input.read(contentSize);
+				var nodeId = i32(input);
+				var attributes = readDict(input);
+				var numChildren = i32(input);
+				var children = [for (i in 0...numChildren) i32(input)];
+				trace('$children');
+				// trace('skipping unsupported chunk "${chunkId}"');
+				// input.read(contentSize);
 			case ReferenceObjectChunkId:
 				trace('skipping unsupported chunk "${chunkId}"');
 				input.read(contentSize);
