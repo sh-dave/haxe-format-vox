@@ -1,7 +1,7 @@
 package format.vox.types;
 
 @:structInit
-class GroupNode implements Node {
+class Model {
+	public var modelId: Int;
 	public var attributes: Dict;
-	public var children: Array<Int>;
 }

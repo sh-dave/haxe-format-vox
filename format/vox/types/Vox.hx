@@ -5,7 +5,9 @@ class Vox {
 	public var models: Array<Array<Voxel>> = [];
 	public var palette: Array<Color>;
 	public var materials: Array<Dict> = [];
-	public var sceneGraph: Node;
+
+	// public var nodeData: Array<NodeData> = [];
+	public var nodeGraph: Node;
 
 	public function new() {
 	}

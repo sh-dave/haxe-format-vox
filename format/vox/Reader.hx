@@ -29,17 +29,19 @@ class Reader {
 
 		var vox = new Vox();
 		var state = { modelIndex: 0, sizeIndex: 0 }
-		readChunk(input, vox, state);
+		var nodeData: Array<NodeData> = [];
+		readChunk(input, vox, nodeData, state);
+		vox.nodeGraph = buildNodeGraph(vox, nodeData, 0);
 		return vox;
 	}
 
-	static function readChunk( input: Input, vox: Vox, state: State ) : Int {
+	static function readChunk( input: Input, vox: Vox, nodeData: Array<NodeData>, state: State ) : Int {
 		var chunkId = input.readString(4);
-		#if debug trace('chunk id = "${chunkId}"'); #end
+		// #if debug trace('chunk id = "${chunkId}"'); #end
 		var contentSize = i32(input);
-		#if debug trace('content size = "${contentSize}"'); #end
+		// #if debug trace('content size = "${contentSize}"'); #end
 		var childBytes  = i32(input);
-		#if debug trace('child bytes = "${childBytes}"'); #end
+		// #if debug trace('child bytes = "${childBytes}"'); #end
 
 		switch chunkId {
 			case MainChunkId:
@@ -78,43 +80,53 @@ class Reader {
 				var layerId = i32(input);
 				var numFrames = i32(input);
 				var frames = [for (i in 0...numFrames) readDict(input)];
-				trace('$frames');
-				// trace('skipping unsupported chunk "${chunkId}"');
-				// input.read(contentSize);
+				// trace('nTRN $nodeId $attributes $childNodeId $reserved $layerId $numFrames $frames');
+				nodeData[nodeId] = TransformNodeData(attributes, childNodeId, reserved, layerId, frames);
 			case ShapeNodeChunkId:
 				var nodeId = i32(input);
 				var attributes = readDict(input);
 				var numModels = i32(input);
-				var models = [for (i in 0...numModels) { id: i32(input), attributes: readDict(input) }];
-				trace('$models');
-				// trace('skipping unsupported chunk "${chunkId}"');
-				// input.read(contentSize);
+				var models: Array<Model> = [for (i in 0...numModels) { modelId: i32(input), attributes: readDict(input) }];
+				// trace('nSHP $nodeId $attributes $numModels $models');
+				nodeData[nodeId] = ShapeNodeData(attributes, models);
 			case GroupNodeChunkId:
 				var nodeId = i32(input);
 				var attributes = readDict(input);
 				var numChildren = i32(input);
 				var children = [for (i in 0...numChildren) i32(input)];
-				trace('$children');
-				// trace('skipping unsupported chunk "${chunkId}"');
-				// input.read(contentSize);
+				// trace('nGRP $nodeId $attributes $numChildren $children');
+				nodeData[nodeId] = GroupNodeData(attributes, children);
 			case ReferenceObjectChunkId:
-				trace('skipping unsupported chunk "${chunkId}"');
+				trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)');
 				input.read(contentSize);
 			case LayerChunkId:
-				trace('skipping unsupported chunk "${chunkId}"');
+				trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)');
 				input.read(contentSize);
 			default:
-				trace('skipping unsupported chunk "${chunkId}"');
+				trace('skipping unsupported chunk "${chunkId}" ($contentSize bytes)');
 				input.read(contentSize);
 		}
 
 		var chunkSize = 4 + 4 + 4 + contentSize + childBytes;
 
 		while (childBytes > 0) {
-			childBytes -= readChunk(input, vox, state);
+			childBytes -= readChunk(input, vox, nodeData, state);
 		}
 
 		return chunkSize;
+	}
+
+	static function buildNodeGraph( vox: Vox, nodeData: Array<NodeData>, nodeId: Int ) : Node {
+		var n = nodeData[nodeId];
+
+		return switch n {
+			case TransformNodeData(att, childNodeId, r, l, fr):
+				Transform(att, r, l, fr, buildNodeGraph(vox, nodeData, childNodeId));
+			case GroupNodeData(att, children):
+				Group(att, [for (childId in children) buildNodeGraph(vox, nodeData, childId)]);
+			case ShapeNodeData(att, models):
+				Shape(att, [for (m in models) { attributes: m.attributes, model: vox.models[m.modelId] }]);
+		}
 	}
 
 	static inline function readVoxel( input: Input ) : Voxel
@@ -178,4 +190,10 @@ class Reader {
 private typedef State = {
 	modelIndex: Int,
 	sizeIndex: Int,
+}
+
+private enum NodeData {
+	TransformNodeData( attributes: Dict, childNodeId: Int, reserved: Int, layerId: Int, frames: Array<Frame> );
+	GroupNodeData( attributes: Dict, children: Array<Int> );
+	ShapeNodeData( attributes: Dict, models: Array<Model> );
 }
