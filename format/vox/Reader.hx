@@ -43,11 +43,11 @@ class Reader {
 
 	static function readChunk( input: Input, vox: Vox, nodeData: Array<NodeData>, state: State ) : Int {
 		var chunkId = input.readString(4);
-		// #if debug trace('chunk id = "${chunkId}"'); #end
+		#if haxe_format_vox_trace trace('chunk id = "${chunkId}"'); #end
 		var contentSize = i32(input);
-		// #if debug trace('content size = "${contentSize}"'); #end
+		#if haxe_format_vox_trace trace('content size = "${contentSize}"'); #end
 		var childBytes  = i32(input);
-		// #if debug trace('child bytes = "${childBytes}"'); #end
+		#if haxe_format_vox_trace trace('child bytes = "${childBytes}"'); #end
 
 		switch chunkId {
 			case MainChunkId:
@@ -71,7 +71,7 @@ class Reader {
 				input.readInt32();
 
 				if (vox.palette != null) {
-					trace('vox.palette is already assigned');
+					#if haxe_format_vox_trace trace('vox.palette is already assigned'); #end
 				}
 
 				vox.palette = palette.map(Tools.transformColor);
@@ -86,30 +86,30 @@ class Reader {
 				var layerId = i32(input);
 				var numFrames = i32(input);
 				var frames = [for (i in 0...numFrames) readDict(input)];
-				trace('nTRN $nodeId $attributes $childNodeId $reserved $layerId $numFrames $frames');
+				#if haxe_format_vox_trace trace('nTRN $nodeId $attributes $childNodeId $reserved $layerId $numFrames $frames'); #end
 				nodeData[nodeId] = TransformNodeData(attributes, childNodeId, reserved, layerId, frames);
 			case ShapeNodeChunkId:
 				var nodeId = i32(input);
 				var attributes = readDict(input);
 				var numModels = i32(input);
 				var models: Array<Model> = [for (i in 0...numModels) { modelId: i32(input), attributes: readDict(input) }];
-				trace('nSHP $nodeId $attributes $numModels $models');
+				#if haxe_format_vox_trace trace('nSHP $nodeId $attributes $numModels $models'); #end
 				nodeData[nodeId] = ShapeNodeData(attributes, models);
 			case GroupNodeChunkId:
 				var nodeId = i32(input);
 				var attributes = readDict(input);
 				var numChildren = i32(input);
 				var children = [for (i in 0...numChildren) i32(input)];
-				trace('nGRP $nodeId $attributes $numChildren $children');
+				#if haxe_format_vox_trace trace('nGRP $nodeId $attributes $numChildren $children'); #end
 				nodeData[nodeId] = GroupNodeData(attributes, children);
 			case ReferenceObjectChunkId:
-				trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)');
+				#if haxe_format_vox_trace trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)'); #end
 				input.read(contentSize);
 			case LayerChunkId:
-				trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)');
+				#if haxe_format_vox_trace trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)'); #end
 				input.read(contentSize);
 			default:
-				trace('skipping unsupported chunk "${chunkId}" ($contentSize bytes)');
+				#if haxe_format_vox_trace trace('skipping unsupported chunk "${chunkId}" ($contentSize bytes)'); #end
 				input.read(contentSize);
 		}
 
@@ -131,7 +131,6 @@ class Reader {
 			case GroupNodeData(att, children):
 				Group(att, [for (childId in children) buildNodeGraph(vox, nodeData, childId)]);
 			case ShapeNodeData(att, models):
-				// Shape(att, [for (m in models) { attributes: m.attributes, model: vox.models[m.modelId] }]);
 				Shape(att, models);
 		}
 	}
@@ -168,8 +167,8 @@ class Reader {
 	static inline var TransformationNodeChunkId = 'nTRN';
 	static inline var ShapeNodeChunkId = 'nSHP';
 	static inline var GroupNodeChunkId = 'nGRP';
-	static inline var ReferenceObjectChunkId = 'rOBJ'; // TODO (DK) not defined in the docs
-	static inline var LayerChunkId = 'LAYR'; // TODO (DK) not defined in the docs
+	static inline var ReferenceObjectChunkId = 'rOBJ'; // TODO (DK) not defined in the docs (https://github.com/ephtracy/voxel-model/issues/19#issuecomment-380194831)
+	static inline var LayerChunkId = 'LAYR'; // TODO (DK) not defined in the docs (https://github.com/ephtracy/voxel-model/issues/19#issuecomment-380194831)
 
 	// default palette from https://github.com/ephtracy/voxel-model/blob/master/MagicaVoxel-file-format-vox.txt
 	public static var DefaultPalette(get, null): Array<Int>;
