@@ -31,13 +31,13 @@ class VoxReader {
 		vox.palette = DefaultPalette.map(VoxTools.transformColor);
 		var state = { modelIndex: 0, sizeIndex: 0 }
 		var nodeData: Array<NodeData> = [];
-		
+
 		readChunk(input, vox, nodeData, state);
 
 		if (nodeData.length > 0) {
 			vox.nodeGraph = buildNodeGraph(vox, nodeData, 0);
 		}
-		
+
 		return vox;
 	}
 
