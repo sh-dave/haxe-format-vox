@@ -46,9 +46,6 @@ class VoxTools {
 			return { x: 0, y: 0, z: 0 }
 		}
 
-		// var test: Int = (1 << 0) | (2 << 2) | (0 << 4) | (1 << 5) | (1 << 6);
-		// trace(test);
-
 		var value: Rotation = Std.parseInt(r);
 		var result = { x: 0.0, y: 0.0, z: 0.0 }
 
@@ -58,8 +55,53 @@ class VoxTools {
 		var s1 = value.sign1;
 		var s2 = value.sign2;
 
-		#if 0 trace('$r0 $r1 $s0 $s1 $s2'); #end
+		result.x = switch s0 {
+			case 0: d2r(90);
+			case 1: d2r(-90);
+			case _: 0;
+		}
+
+		result.y = switch s1 {
+			case 0: d2r(90);
+			case 1: d2r(-90);
+			case _: 0;
+		}
+
+		result.z = switch s2 {
+			case 0: d2r(90);
+			case 1: d2r(-90);
+			case _: 0;
+		}
+
+		trace('$r0 $r1 $s0 $s1 $s2');
 
 		return result;
 	}
+
+	static inline function d2r( d: Float ) : Float
+		return d * Math.PI / 180.0;
 }
+
+
+// 20 -> 10100
+
+// (c) ROTATION type
+
+// store row-major rotation in bits of bytes
+
+// 0 0 -1 1 0 0 0 -1 0
+
+// for example :
+// R =
+//  0  1  0
+//  0  0 -1
+// -1  0  0
+// ==>
+// unsigned char _r = (1 << 0) | (2 << 2) | (0 << 4) | (1 << 5) | (1 << 6)
+
+// bit | value
+// 0-1 : 1 : index of non-zero entry in row 0
+// 2-3 : 2 : index of non-zero entry in row 1
+// 4   : 0 : sign in row 0 (0 : positive; 1 : negative)
+// 5   : 1 : sign in row 1 (0 : positive; 1 : negative)
+// 6   : 1 : sign in row 2 (0 : positive; 1 : negative)
