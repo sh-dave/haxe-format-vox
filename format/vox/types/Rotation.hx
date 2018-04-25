@@ -6,7 +6,6 @@ abstract Rotation(Int) from Int {
 
 	public var r0(get, never): Int;
 	public var r1(get, never): Int;
-	// public var r2(get, never): Int;
 
 	public var sign0(get, never): Int;
 	public var sign1(get, never): Int;
