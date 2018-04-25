@@ -15,8 +15,10 @@ typedef Rotation = {
 	// 0, 0, 0, 1
 }
 
+@:expose
+@:keep
 class VoxTools {
-	public static function transformCoordinateSystem( vox: Vox ) {
+	public static function transformYZ( vox: Vox ) {
 		for (i in 0...vox.models.length) {
 			var dy = vox.sizes[i].y;
 
