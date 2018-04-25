@@ -1,15 +1,15 @@
 package format.vox;
 
 import format.vox.types.*;
-import haxe.io.Bytes;
-import haxe.io.BytesInput;
 import haxe.io.Input;
 
+@:expose
+@:keep
 class VoxReader {
 	var input: Input;
 
-	public function new( bytes: Bytes )
-		this.input = bytes == null ? null : new BytesInput(bytes);
+	public function new( input: Input )
+		this.input = input;
 
 	public function read() : Null<Vox> {
 		if (input == null) {
@@ -17,7 +17,7 @@ class VoxReader {
 			return null;
 		}
 
-		if (input.readString(4) != VoxMagic) {
+		if (input.readString(4) != 'VOX ') {
 			trace('"VOX " expected');
 			return null;
 		}
@@ -50,18 +50,18 @@ class VoxReader {
 		#if haxe_format_vox_trace trace('child bytes = "${childBytes}"'); #end
 
 		switch chunkId {
-			case MainChunkId:
-			case PackChunkId:
+			case 'MAIN':
+			case 'PACK':
 				var numModels = i32(input);
-			case SizeChunkId:
+			case 'SIZE':
 				vox.sizes[state.sizeIndex++] = {
 					x :i32(input),
 					y: i32(input),
 					z: i32(input)
 				}
-			case GeometryChunkId:
+			case 'XYZI':
 				vox.models[state.modelIndex++] = [for (c in 0...i32(input)) readVoxel(input)];
-			case PaletteChunkId:
+			case 'RGBA':
 				var palette = DefaultPalette;
 
 				for (i in 0...255) {
@@ -75,10 +75,10 @@ class VoxReader {
 				}
 
 				vox.palette = palette.map(VoxTools.transformColor);
-			case MaterialChunkId:
+			case 'MATL':
 				var m = readMaterial(input);
 				vox.materials[m.id] = m.props;
-			case TransformationNodeChunkId:
+			case 'nTRN':
 				var nodeId = i32(input); // 0 is root?
 				var attributes = readDict(input);
 				var childNodeId = i32(input);
@@ -86,28 +86,28 @@ class VoxReader {
 				var layerId = i32(input);
 				var numFrames = i32(input);
 				var frames = [for (i in 0...numFrames) readDict(input)];
-				#if haxe_format_vox_trace trace('nTRN $nodeId $attributes $childNodeId $reserved $layerId $numFrames $frames'); #end
+				#if haxe_format_vox_trace trace('$chunkId $nodeId $attributes $childNodeId $reserved $layerId $numFrames $frames'); #end
 				nodeData[nodeId] = TransformNodeData(attributes, childNodeId, reserved, layerId, frames);
-			case ShapeNodeChunkId:
+			case 'nSHP':
 				var nodeId = i32(input);
 				var attributes = readDict(input);
 				var numModels = i32(input);
 				var models: Array<Model> = [for (i in 0...numModels) { modelId: i32(input), attributes: readDict(input) }];
-				#if haxe_format_vox_trace trace('nSHP $nodeId $attributes $numModels $models'); #end
+				#if haxe_format_vox_trace trace('$chunkId $nodeId $attributes $numModels $models'); #end
 				nodeData[nodeId] = ShapeNodeData(attributes, models);
-			case GroupNodeChunkId:
+			case 'nGRP':
 				var nodeId = i32(input);
 				var attributes = readDict(input);
 				var numChildren = i32(input);
 				var children = [for (i in 0...numChildren) i32(input)];
-				#if haxe_format_vox_trace trace('nGRP $nodeId $attributes $numChildren $children'); #end
+				#if haxe_format_vox_trace trace('$chunkId $nodeId $attributes $numChildren $children'); #end
 				nodeData[nodeId] = GroupNodeData(attributes, children);
-			case ReferenceObjectChunkId:
-				#if haxe_format_vox_trace trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)'); #end
-				input.read(contentSize);
-			case LayerChunkId:
-				#if haxe_format_vox_trace trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)'); #end
-				input.read(contentSize);
+			// case 'rOBJ': // TODO (DK) not defined in the docs (https://github.com/ephtracy/voxel-model/issues/19#issuecomment-380194831)
+			// 	#if haxe_format_vox_trace trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)'); #end
+			// 	input.read(contentSize);
+			// case 'LAYR': // TODO (DK) not defined in the docs (https://github.com/ephtracy/voxel-model/issues/19#issuecomment-380194831)
+			// 	#if haxe_format_vox_trace trace('TODO (DK) chunk "${chunkId}" ($contentSize bytes)'); #end
+			// 	input.read(contentSize);
 			default:
 				#if haxe_format_vox_trace trace('skipping unsupported chunk "${chunkId}" ($contentSize bytes)'); #end
 				input.read(contentSize);
@@ -155,20 +155,6 @@ class VoxReader {
 
 	static inline function string( input: Input ) : String
 		return input.read(i32(input)).toString();
-
-	static inline var VoxMagic = 'VOX ';
-
-	static inline var MainChunkId = 'MAIN';
-	static inline var SizeChunkId = 'SIZE';
-	static inline var GeometryChunkId = 'XYZI';
-	static inline var PackChunkId = 'PACK';
-	static inline var PaletteChunkId = 'RGBA';
-	static inline var MaterialChunkId = 'MATL';
-	static inline var TransformationNodeChunkId = 'nTRN';
-	static inline var ShapeNodeChunkId = 'nSHP';
-	static inline var GroupNodeChunkId = 'nGRP';
-	static inline var ReferenceObjectChunkId = 'rOBJ'; // TODO (DK) not defined in the docs (https://github.com/ephtracy/voxel-model/issues/19#issuecomment-380194831)
-	static inline var LayerChunkId = 'LAYR'; // TODO (DK) not defined in the docs (https://github.com/ephtracy/voxel-model/issues/19#issuecomment-380194831)
 
 	// default palette from https://github.com/ephtracy/voxel-model/blob/master/MagicaVoxel-file-format-vox.txt
 	public static var DefaultPalette(get, null): Array<Int>;
