@@ -1,0 +1,23 @@
+{
+	"name": "@sh-dave/format-vox",
+	"version": "0.0.1",
+	"description": "A reader for MagicaVoxel's VOX file format",
+	"devDependencies": {
+		"lix": "^15.1.0-rc.2"
+	},
+	"scripts": {
+		"postinstall": "lix download"
+	},
+	"main": "./dist/index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sh-dave/haxe-format-vox.git"
+	},
+	"keywords": [
+		"VOX", "magicavoxel"
+	],
+	"bugs": {
+		"url": "https://github.com/sh-dave/haxe-format-vox/issues"
+	},
+	"license": "zlib"
+}
