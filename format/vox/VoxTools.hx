@@ -2,6 +2,19 @@ package format.vox;
 
 import format.vox.types.*;
 
+typedef Translation = {
+	x: Float,
+	y: Float,
+	z: Float,
+}
+
+typedef Rotation = {
+	_00: Float, _10: Float, _20: Float, // , 0
+	_01: Float, _11: Float, _21: Float, // , 0
+	_02: Float, _12: Float, _22: Float, // , 0
+	// 0, 0, 0, 1
+}
+
 class VoxTools {
 	public static function transformCoordinateSystem( vox: Vox ) {
 		for (i in 0...vox.models.length) {
@@ -23,7 +36,7 @@ class VoxTools {
 		a : (color >> 24) & 0xff,
 	}
 
-	public static function getTranslationFromDict( d: Dict, key: String /*= '_t'*/ ) : { x: Float, y: Float, z: Float } {
+	public static function getTranslationFromDict( d: Dict, key: String /*= '_t'*/ ) : Translation {
 		var t = d.get(key);
 
 		if (t == null) {
@@ -38,70 +51,38 @@ class VoxTools {
 		return { x: x, y: y, z: z }
 	}
 
-	// TODO (DK) implement me
-	public static function getRotationFromDict( d: Dict, key: String /*= '_r'*/ ) : { x: Float, y: Float, z: Float } {
+	public static function getRotationFromDict( d: Dict, key: String /*= '_r'*/ ) : Rotation {
 		var r = d.get(key);
 
 		if (r == null) {
-			return { x: 0, y: 0, z: 0 }
+			return {
+				_00: 1, _10: 0, _20: 0,
+				_01: 0, _11: 1, _21: 0,
+				_02: 0, _12: 0, _22: 1,
+			}
 		}
 
-		var value: Rotation = Std.parseInt(r);
-		var result = { x: 0.0, y: 0.0, z: 0.0 }
+		var value: RotationBits = Std.parseInt(r);
 
-		var r0 = value.r0;
-		var r1 = value.r1;
 		var s0 = value.sign0;
 		var s1 = value.sign1;
 		var s2 = value.sign2;
-
-		result.x = switch s0 {
-			case 0: d2r(90);
-			case 1: d2r(-90);
-			case _: 0;
+		var r0 = value.r0;
+		var r1 = value.r1;
+		var r2 = switch [r0, r1] {
+			case [0, 1]: 2;
+			case [1, 0]: 2;
+			case [0, 2]: 1;
+			case [2, 0]: 1;
+			case [1, 2]: 0;
+			case [2, 1]: 0;
+			case _: trace('missing r0;r1 match'); 0;
 		}
-
-		result.y = switch s1 {
-			case 0: d2r(90);
-			case 1: d2r(-90);
-			case _: 0;
+		
+		return {
+			_00: r0 == 0 ? s0 : 0, _10: r0 == 1 ? s0 : 0, _20: r0 == 2 ? s0 : 0,
+			_01: r1 == 0 ? s1 : 0, _11: r1 == 1 ? s1 : 0, _21: r1 == 2 ? s1 : 0,
+			_02: r2 == 0 ? s2 : 0, _12: r2 == 1 ? s2 : 0, _22: r2 == 2 ? s2 : 0,
 		}
-
-		result.z = switch s2 {
-			case 0: d2r(90);
-			case 1: d2r(-90);
-			case _: 0;
-		}
-
-		trace('$r0 $r1 $s0 $s1 $s2');
-
-		return result;
 	}
-
-	static inline function d2r( d: Float ) : Float
-		return d * Math.PI / 180.0;
 }
-
-
-// 20 -> 10100
-
-// (c) ROTATION type
-
-// store row-major rotation in bits of bytes
-
-// 0 0 -1 1 0 0 0 -1 0
-
-// for example :
-// R =
-//  0  1  0
-//  0  0 -1
-// -1  0  0
-// ==>
-// unsigned char _r = (1 << 0) | (2 << 2) | (0 << 4) | (1 << 5) | (1 << 6)
-
-// bit | value
-// 0-1 : 1 : index of non-zero entry in row 0
-// 2-3 : 2 : index of non-zero entry in row 1
-// 4   : 0 : sign in row 0 (0 : positive; 1 : negative)
-// 5   : 1 : sign in row 1 (0 : positive; 1 : negative)
-// 6   : 1 : sign in row 2 (0 : positive; 1 : negative)

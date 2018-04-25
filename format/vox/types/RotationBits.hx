@@ -1,6 +1,6 @@
 package format.vox.types;
 
-abstract Rotation(Int) from Int {
+abstract RotationBits(Int) from Int {
 	public inline function new( r: Int )
 		this = r;
 
