@@ -1,30 +1,34 @@
 package format.vox;
 
 import format.vox.types.*;
+import haxe.io.Bytes;
+import haxe.io.BytesData;
+import haxe.io.BytesInput;
 import haxe.io.Input;
 
-@:expose
-@:keep
+typedef VoxError = Any;
+
+@:expose @:keep
 class VoxReader {
-	var input: Input;
-
-	public function new( input: Input )
-		this.input = input;
-
-	public function read() : Null<Vox> {
-		if (input == null) {
-			trace('no valid input');
-			return null;
+	// TODO (DK) npm lib: document that BytesData is js.html.ArrayBuffer
+	public static function read( data: BytesData, then: ?Vox -> ?VoxError -> Void ) {
+		if (data == null) {
+			then(null, 'Invalid input');
+			return;
 		}
+
+		var input = new BytesInput(Bytes.ofData(data));
 
 		if (input.readString(4) != 'VOX ') {
-			trace('"VOX " expected');
-			return null;
+			then(null, 'Expected "VOX " header');
+			return;
 		}
 
-		if (i32(input) != 150) {
-			trace('unsupported version');
-			return null;
+		var version = i32(input);
+
+		if (version != 150) {
+			then(null, 'Unsupported version "$version"');
+			return;
 		}
 
 		var vox = new Vox();
@@ -38,7 +42,7 @@ class VoxReader {
 			vox.nodeGraph = buildNodeGraph(vox, nodeData, 0);
 		}
 
-		return vox;
+		then(vox, null);
 	}
 
 	static function readChunk( input: Input, vox: Vox, nodeData: Array<NodeData>, state: State ) : Int {
