@@ -33,10 +33,14 @@ var vox = VoxReader.read(data, (vox, err) => {
 });
 ```
 
-# examples
+# haxe examples
 
-- code moved to https://github.com/sh-dave/haxe-format-vox-examples
+- https://github.com/sh-dave/haxe-format-vox-examples
 - [online html5 demo](https://sh-dave.github.io/haxe-format-vox)
+
+# js examples
+
+- https://github.com/sh-dave/haxe-format-vox-examples-js
 
 # js library build instructions
 
