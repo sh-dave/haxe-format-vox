@@ -10,7 +10,6 @@ typedef VoxError = Any;
 
 @:expose @:keep
 class VoxReader {
-	// TODO (DK) npm lib: document that BytesData is js.html.ArrayBuffer
 	public static function read( data: BytesData, then: ?Vox -> ?VoxError -> Void ) {
 		if (data == null) {
 			then(null, 'Invalid input');

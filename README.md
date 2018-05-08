@@ -1,6 +1,6 @@
 # haxe-format-vox
 
-A reader for [MagicaVoxels](https://ephtracy.github.io)'s vox files. Reads most of the v0.99 chunks.
+A reader for [MagicaVoxels](https://ephtracy.github.io)'s VOX files. Reads most of the v0.99 chunks including the world builder nodes.
 
 - [x] PACK - skipped
 - [x] SIZE
