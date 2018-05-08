@@ -48,3 +48,18 @@ var vox = VoxReader.read(data, (vox, err) => {
 npm install
 npx haxe build-js.hxml
 ```
+# progress
+
+Read most of the v0.99 chunks
+
+- [x] PACK - skipped
+- [x] SIZE
+- [x] XYZI
+- [x] RGBA
+- [x] MATT - skipped
+- [X] MATL
+- [x] nTRN
+- [x] nSHP
+- [x] nGRP
+- [ ] rOBJ - [missing specs](https://github.com/ephtracy/voxel-model/issues/19)
+- [ ] LAYR - [missing specs](https://github.com/ephtracy/voxel-model/issues/19)
