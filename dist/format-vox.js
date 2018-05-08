@@ -339,16 +339,22 @@ format_vox_VoxTools.transformYZ = function(vox) {
 format_vox_VoxTools.transformColor = function(color) {
 	return new format_vox_types_Color(color & 255,color >> 8 & 255,color >> 16 & 255,color >> 24 & 255);
 };
-format_vox_VoxTools.getTranslationFromDict = function(d,key) {
-	var t = __map_reserved[key] != null ? d.getReserved(key) : d.h[key];
+format_vox_VoxTools.dictHasTranslation = function(d) {
+	return (__map_reserved["_t"] != null ? d.getReserved("_t") : d.h["_t"]) != null;
+};
+format_vox_VoxTools.getTranslationFromDict = function(d) {
+	var t = __map_reserved["_t"] != null ? d.getReserved("_t") : d.h["_t"];
 	if(t == null) {
 		return { x : 0, y : 0, z : 0};
 	}
 	var split = t.split(" ");
 	return { x : Std.parseInt(split[0]), y : Std.parseInt(split[1]), z : Std.parseInt(split[2])};
 };
-format_vox_VoxTools.getRotationFromDict = function(d,key) {
-	var r = __map_reserved[key] != null ? d.getReserved(key) : d.h[key];
+format_vox_VoxTools.dictHasRotation = function(d) {
+	return (__map_reserved["_r"] != null ? d.getReserved("_r") : d.h["_r"]) != null;
+};
+format_vox_VoxTools.getRotationFromDict = function(d) {
+	var r = __map_reserved["_r"] != null ? d.getReserved("_r") : d.h["_r"];
 	if(r == null) {
 		return { _00 : 1, _10 : 0, _20 : 0, _01 : 0, _11 : 1, _21 : 0, _02 : 0, _12 : 0, _22 : 1};
 	}
@@ -369,7 +375,7 @@ format_vox_VoxTools.getRotationFromDict = function(d,key) {
 			r2 = 1;
 			break;
 		default:
-			console.log("VoxTools.hx:80:","missing r0;r1 match");
+			console.log("VoxTools.hx:90:","missing r0;r1 match");
 			r2 = 0;
 		}
 		break;
@@ -382,7 +388,7 @@ format_vox_VoxTools.getRotationFromDict = function(d,key) {
 			r2 = 0;
 			break;
 		default:
-			console.log("VoxTools.hx:80:","missing r0;r1 match");
+			console.log("VoxTools.hx:90:","missing r0;r1 match");
 			r2 = 0;
 		}
 		break;
@@ -395,12 +401,12 @@ format_vox_VoxTools.getRotationFromDict = function(d,key) {
 			r2 = 0;
 			break;
 		default:
-			console.log("VoxTools.hx:80:","missing r0;r1 match");
+			console.log("VoxTools.hx:90:","missing r0;r1 match");
 			r2 = 0;
 		}
 		break;
 	default:
-		console.log("VoxTools.hx:80:","missing r0;r1 match");
+		console.log("VoxTools.hx:90:","missing r0;r1 match");
 		r2 = 0;
 	}
 	return { _00 : r0 == 0 ? s0 : 0, _10 : r0 == 1 ? s0 : 0, _20 : r0 == 2 ? s0 : 0, _01 : r1 == 0 ? s1 : 0, _11 : r1 == 1 ? s1 : 0, _21 : r1 == 2 ? s1 : 0, _02 : r2 == 0 ? s2 : 0, _12 : r2 == 1 ? s2 : 0, _22 : r2 == 2 ? s2 : 0};
@@ -857,6 +863,8 @@ if(ArrayBuffer.prototype.slice == null) {
 	ArrayBuffer.prototype.slice = js_html_compat_ArrayBuffer.sliceImpl;
 }
 var Uint8Array = $global.Uint8Array || js_html_compat_Uint8Array._new;
+format_vox_VoxTools.TranslationKey = "_t";
+format_vox_VoxTools.RotationKey = "_r";
 js_html_compat_Uint8Array.BYTES_PER_ELEMENT = 1;
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
 var format = $hx_exports["format"];

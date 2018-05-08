@@ -37,8 +37,13 @@ class VoxTools {
 		a : (color >> 24) & 0xff,
 	}
 
-	public static function getTranslationFromDict( d: Dict, key: String /*= '_t'*/ ) : Translation {
-		var t = d.get(key);
+	static inline var TranslationKey = '_t';
+
+	public static function dictHasTranslation( d: Dict ) : Bool
+		return d.get(TranslationKey) != null;
+
+	public static function getTranslationFromDict( d: Dict ) : Translation {
+		var t = d.get(TranslationKey);
 
 		if (t == null) {
 			return { x: 0, y: 0, z: 0 }
@@ -52,8 +57,13 @@ class VoxTools {
 		return { x: x, y: y, z: z }
 	}
 
-	public static function getRotationFromDict( d: Dict, key: String /*= '_r'*/ ) : Rotation {
-		var r = d.get(key);
+	static inline var RotationKey = '_r';
+
+	public static function dictHasRotation( d: Dict ) : Bool
+		return d.get(RotationKey) != null;
+
+	public static function getRotationFromDict( d: Dict ) : Rotation {
+		var r = d.get(RotationKey);
 
 		if (r == null) {
 			return {
