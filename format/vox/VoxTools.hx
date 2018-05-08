@@ -15,8 +15,7 @@ typedef Rotation = {
 	// 0, 0, 0, 1
 }
 
-@:expose
-@:keep
+@:expose @:keep
 class VoxTools {
 	public static function transformYZ( vox: Vox ) {
 		for (i in 0...vox.models.length) {

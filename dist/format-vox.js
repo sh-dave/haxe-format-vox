@@ -35,6 +35,36 @@ Std.parseInt = function(x) {
 	}
 	return v;
 };
+var format_vox_VoxNodeTools = $hx_exports["format"]["vox"]["VoxNodeTools"] = function() { };
+format_vox_VoxNodeTools.__name__ = true;
+format_vox_VoxNodeTools.walkNodeGraph = function(vox,w) {
+	w.beginGraph(vox);
+	format_vox_VoxNodeTools.nodeWalker(vox.nodeGraph,w);
+	w.endGraph();
+};
+format_vox_VoxNodeTools.nodeWalker = function(node,w) {
+	if(node == null) {
+		console.log("VoxNodeTools.hx:30:","TODO (DK)");
+	} else {
+		switch(node[1]) {
+		case 0:
+			w.onTransform(node[5][0]);
+			format_vox_VoxNodeTools.nodeWalker(node[6],w);
+			break;
+		case 1:
+			var children = node[3];
+			w.beginGroup(node[2]);
+			var _g = 0;
+			while(_g < children.length) format_vox_VoxNodeTools.nodeWalker(children[_g++],w);
+			w.endGroup();
+			break;
+		case 2:
+			w.onShape(node[2],node[3]);
+			break;
+		}
+	}
+	return;
+};
 var format_vox_VoxReader = $hx_exports["format"]["vox"]["VoxReader"] = function() { };
 format_vox_VoxReader.__name__ = true;
 format_vox_VoxReader.read = function(data,then) {
@@ -339,7 +369,7 @@ format_vox_VoxTools.getRotationFromDict = function(d,key) {
 			r2 = 1;
 			break;
 		default:
-			console.log("VoxTools.hx:81:","missing r0;r1 match");
+			console.log("VoxTools.hx:80:","missing r0;r1 match");
 			r2 = 0;
 		}
 		break;
@@ -352,7 +382,7 @@ format_vox_VoxTools.getRotationFromDict = function(d,key) {
 			r2 = 0;
 			break;
 		default:
-			console.log("VoxTools.hx:81:","missing r0;r1 match");
+			console.log("VoxTools.hx:80:","missing r0;r1 match");
 			r2 = 0;
 		}
 		break;
@@ -365,12 +395,12 @@ format_vox_VoxTools.getRotationFromDict = function(d,key) {
 			r2 = 0;
 			break;
 		default:
-			console.log("VoxTools.hx:81:","missing r0;r1 match");
+			console.log("VoxTools.hx:80:","missing r0;r1 match");
 			r2 = 0;
 		}
 		break;
 	default:
-		console.log("VoxTools.hx:81:","missing r0;r1 match");
+		console.log("VoxTools.hx:80:","missing r0;r1 match");
 		r2 = 0;
 	}
 	return { _00 : r0 == 0 ? s0 : 0, _10 : r0 == 1 ? s0 : 0, _20 : r0 == 2 ? s0 : 0, _01 : r1 == 0 ? s1 : 0, _11 : r1 == 1 ? s1 : 0, _21 : r1 == 2 ? s1 : 0, _02 : r2 == 0 ? s2 : 0, _12 : r2 == 1 ? s2 : 0, _22 : r2 == 2 ? s2 : 0};

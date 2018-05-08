@@ -16,6 +16,7 @@ typedef Walker = {
 	function onShape( att: Dict, models: Array<Model> ) : Void;
 }
 
+@:expose @:keep
 class VoxNodeTools {
 	public static function walkNodeGraph( vox: Vox, w: Walker ) {
 		w.beginGraph(vox);
