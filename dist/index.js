@@ -1,1 +1,1 @@
-module.exports = require('./dist.js').format.vox;
+module.exports = require('./format-vox.js').format.vox;

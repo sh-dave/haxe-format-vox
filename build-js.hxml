@@ -2,7 +2,8 @@
 -D analyzer-optimize
 -D shallow-expose
 
--js dist/dist.js
+-js dist/format-vox.js
 
 format.vox.VoxReader
 format.vox.VoxTools
+format.vox.VoxNodeTools

@@ -1,6 +1,6 @@
 {
 	"name": "@sh-dave/format-vox",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "A reader for MagicaVoxel's VOX file format",
 	"devDependencies": {
 		"lix": "^15.1.0-rc.2"
