@@ -19,7 +19,7 @@ A reader for [MagicaVoxels](https://ephtracy.github.io)'s VOX files. Reads most 
 ### usage in haxe
 ```haxe
 var data: BytesData = ...;
-var vox = format.vox.VoxReader.read(data, function( ?vox, ?err ) {
+format.vox.VoxReader.read(data, function( ?vox, ?err ) {
 	if (err != null) {
 		trace(err);
 		return;
@@ -43,7 +43,7 @@ var vox = format.vox.VoxReader.read(data, function( ?vox, ?err ) {
 const VoxReader = require('@sh-dave/format-vox').VoxReader;
 const data = ...some ArrayBuffer...;
 
-var vox = VoxReader.read(data, (vox, err) => {
+VoxReader.read(data, (vox, err) => {
 	if (err) {
 		console.error(err);
 		return;
@@ -54,11 +54,11 @@ var vox = VoxReader.read(data, (vox, err) => {
 });
 ```
 
-### javascript examples
-
-- a more complete usage example - [code](https://github.com/sh-dave/haxe-format-vox-examples-js)
+- a more complete [usage example](https://github.com/sh-dave/haxe-format-vox-examples-js)
 
 ## javascript library build instructions
+
+All dependencies are simply installed via `npm` thanks to [lix](https://github.com/lix-pm/lix.client)
 
 ```shell
 npm install
