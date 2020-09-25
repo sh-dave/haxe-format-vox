@@ -1,7 +1,7 @@
 -dce full
 -D analyzer-optimize
 -D shallow-expose
-
+-cp src
 -js dist/format-vox.js
 
 format.vox.VoxReader
