@@ -25,7 +25,7 @@ class VoxReader {
 
 		var version = i32(input);
 
-		if (version != 150) {
+		if (version != 150 && version != 200) {
 			then(null, 'Unsupported version "$version"');
 			return;
 		}
